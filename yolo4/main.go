@@ -89,6 +89,12 @@ func extractPredictions(detLayers []gocv.Mat, imgSize []int, classLabels []strin
 	var yd, ydFiltered YoloDSlice
 	frameWidth, frameHeight := imgSize[1], imgSize[0]
 
+	// Modified quote from:
+	// https://github.com/opencv/opencv/blob/8c25a8eb7b10fb50cda323ee6bec68aa1a9ce43c/samples/dnn/object_detection.py#L130
+	// Network produces output blob with a shape NxC where N is a number of
+	// detected objects (regions) and C is a number of classes + 5 where the first 4
+	// numbers are [center_x, center_y, width, height],
+	// and starting from the column 5 you get scores for each class
 	for _, prob := range detLayers {
 		for j := 0; j < prob.Rows(); j++ {
 			row := prob.RowRange(j, j+1)           // gocv.Mat
@@ -166,7 +172,7 @@ func main() {
 	}
 
 	// Read the image and feed it to the netwotk
-	img := gocv.IMRead(imgPath, gocv.IMReadColor) // Original image, later used to drwa detections
+	img := gocv.IMRead(imgPath, gocv.IMReadColor) // Original image, later used to draw detections
 	img2 := img.Clone()                           // A copy used to create blob and perform detection
 
 	// Image conversion is required to create a blob as explained in
