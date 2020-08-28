@@ -4,10 +4,13 @@
 // For more information on Darknet and Yolo 4 please visit
 // https://github.com/AlexeyAB/darknet
 //
-// Before using this example, you need to download list model files:
+// Before using this example, you need to download model files:
 // List of labels: https://github.com/AlexeyAB/darknet/blob/master/cfg/coco.names
 // Config file:    https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg
 // Model weights:  https://drive.google.com/open?id=1cewMfusmPjYWbrnuJRuKhPMwRe_b9PaT
+//
+// C++ example used as reference
+// https://github.com/opencv/opencv/blob/8c25a8eb7b10fb50cda323ee6bec68aa1a9ce43c/samples/dnn/object_detection.cpp#L192-L221
 //
 
 package main
@@ -88,8 +91,8 @@ func extractPredictions(detLayers []gocv.Mat, imgSize []int, classLabels []strin
 
 	for _, prob := range detLayers {
 		for j := 0; j < prob.Rows(); j++ {
-			row := prob.RowRange(j, j+1)
-			scores := row.ColRange(5, prob.Cols())
+			row := prob.RowRange(j, j+1)           // gocv.Mat
+			scores := row.ColRange(5, prob.Cols()) // gocv.Mat
 			_, confidence, _, maxLoc := gocv.MinMaxLoc(scores)
 			if confidence > confThr {
 				classID := maxLoc.X
@@ -152,7 +155,7 @@ func main() {
 
 	// Find names of the layers with type "Region" which are output layers
 	// GetLayer argument (layer number) is starting from 1 since layer 0 is "_input"
-	// In Yolo 4 configuration, these shoudl be [yolo_139 yolo_150 yolo_161]
+	// In Yolo 4 configuration, these should be [yolo_139 yolo_150 yolo_161]
 	var yoloOutputLayers []string
 	yoloLayers := yoloModel.GetLayerNames()
 	for i := 0; i < len(yoloLayers); i++ {
@@ -163,8 +166,8 @@ func main() {
 	}
 
 	// Read the image and feed it to the netwotk
-	img := gocv.IMRead(imgPath, gocv.IMReadColor)
-	img2 := img.Clone() // A copy used to create blob and perform detection
+	img := gocv.IMRead(imgPath, gocv.IMReadColor) // Original image, later used to drwa detections
+	img2 := img.Clone()                           // A copy used to create blob and perform detection
 
 	// Image conversion is required to create a blob as explained in
 	// https://github.com/hybridgroup/gocv/issues/658
